@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16
+    container_name: tpps_postgres
+    environment:
+      POSTGRES_DB: tpps
+      POSTGRES_USER: tomas
+      POSTGRES_PASSWORD: 1234
+      TZ: UTC
+      PGTZ: UTC
+    command: ["postgres", "-c", "TimeZone=UTC"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - tpps_pgdata:/var/lib/postgresql/data
+volumes:
+  tpps_pgdata:
