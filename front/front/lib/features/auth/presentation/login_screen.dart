@@ -21,12 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await widget.repo.login(emailCtrl.text.trim(), passCtrl.text);
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (_) => Scaffold(
-          appBar: AppBar(title: const Text("TPPS")),
-          body: const Center(child: Text("Prisijungta")),
-        ),
-      ));
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     } catch (e) {
       setState(() => error = "Nepavyko prisijungti (patikrink email/slaptažodį)");
     } finally {

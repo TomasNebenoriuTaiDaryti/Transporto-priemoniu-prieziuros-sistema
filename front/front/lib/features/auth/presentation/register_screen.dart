@@ -20,9 +20,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       await widget.repo.register(emailCtrl.text.trim(), passCtrl.text);
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (r) => false);
     } catch (e) {
-      setState(() => error = "Registracija nepavyko.");
+      setState(() => error = "Registracija nepavyko (email jau naudojamas)");
     } finally {
       if (mounted) setState(() => loading = false);
     }
