@@ -91,12 +91,6 @@ public class VehicleService {
                 .stream().map(this::toResponse).toList();
     }
 
-    public VehicleDetailsResponse getMyVehicleDetails(Long ownerUserId, Long vehicleId) {
-        Vehicle v = vehicles.findByIdAndOwnerUserId(vehicleId, ownerUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Mašina nerasta"));
-        return toDetails(v);
-    }
-
     @Transactional
     public VehicleResponse updateMyVehicle(Long ownerUserId, Long vehicleId, VehicleUpdateRequest req) {
         Vehicle v = vehicles.findByIdAndOwnerUserId(vehicleId, ownerUserId)
@@ -268,7 +262,7 @@ public class VehicleService {
         );
     }
 
-    private VehicleDetailsResponse toDetails(Vehicle v) {
+    private VehicleDetailsResponse toDetails(Vehicle v, boolean isOwner) {
         return new VehicleDetailsResponse(
                 v.getId(),
                 v.getVin(),
@@ -286,7 +280,8 @@ public class VehicleService {
                 v.getCo2Gkm(),
                 v.getPlantCountry(),
                 v.getManufacturer(),
-                v.getGroupId()
+                v.getGroupId(),
+                isOwner
         );
     }
 
@@ -303,5 +298,19 @@ public class VehicleService {
         x = x.toUpperCase();
         if (x.length() != 17) throw new IllegalArgumentException("VIN turi būti 17 simbolių");
         return x;
+    }
+
+    public VehicleDetailsResponse getVehicleDetailsForViewer(Long userId, Long vehicleId) {
+        Vehicle v = vehicles.findById(vehicleId)
+                .orElseThrow(() -> new IllegalArgumentException("Mašina nerasta"));
+
+        boolean canView = Objects.equals(v.getOwnerUserId(), userId);
+        if (!canView && v.getGroupId() != null) {
+            canView = groupMembers.existsByGroupIdAndUserId(v.getGroupId(), userId);
+        }
+        if (!canView) throw new IllegalArgumentException("Neturi prieigos prie šios mašinos");
+
+        boolean isOwner = Objects.equals(v.getOwnerUserId(), userId);
+        return toDetails(v, isOwner);
     }
 }

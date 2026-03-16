@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/token_storage.dart';
+import 'core/notifications/local_notifications.dart';
 import 'features/auth/data/auth_api.dart';
 import 'features/auth/data/auth_repo.dart';
 import 'features/auth/presentation/auth_gate.dart';
 import 'features/auth/presentation/login_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotifications.init();
   final tokenStorage = TokenStorage();
   final apiClient = ApiClient(tokenStorage);
   final authApi = AuthApi(apiClient.dio);

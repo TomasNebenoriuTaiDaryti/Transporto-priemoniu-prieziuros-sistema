@@ -37,6 +37,7 @@ class AuthGate extends StatelessWidget {
           vehicleApi: vehicleApi,
           groupsApi: groupsApi,
           tokenStorage: tokenStorage,
+          apiClient: apiClient,
         );
       },
     );
@@ -47,11 +48,13 @@ class _HomeTabs extends StatefulWidget {
   final VehicleApi vehicleApi;
   final GroupsApi groupsApi;
   final TokenStorage tokenStorage;
+  final ApiClient apiClient;
 
   const _HomeTabs({
     required this.vehicleApi,
     required this.groupsApi,
     required this.tokenStorage,
+    required this.apiClient,
   });
 
   @override
@@ -70,7 +73,7 @@ class _HomeTabsState extends State<_HomeTabs> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      MyVehiclesScreen(api: widget.vehicleApi),
+      MyVehiclesScreen(api: widget.vehicleApi, apiClient: widget.apiClient),
       GroupsScreen(api: widget.groupsApi, vehicleApi: widget.vehicleApi),
     ];
 

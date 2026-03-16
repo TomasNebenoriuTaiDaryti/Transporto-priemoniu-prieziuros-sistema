@@ -46,7 +46,7 @@ public class VehicleController {
     @GetMapping("/{id}")
     public VehicleDetailsResponse details(@PathVariable Long id, Authentication auth) {
         Long userId = AuthUser.userId(auth);
-        return service.getMyVehicleDetails(userId, id);
+        return service.getVehicleDetailsForViewer(userId, id);
     }
 
     @PutMapping("/{id}")

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../../core/network/api_client.dart';
+import '../../vehicles_details/data/docs_api.dart';
+import '../../vehicles_details/data/records_api.dart';
+import '../../vehicles_details/data/reminders_api.dart';
+import '../../vehicles_details/presentation/vehicle_details_screen.dart';
 import '../data/vehicle_api.dart';
 import 'vin_input_screen.dart';
 import 'vehicle_edit_screen.dart';
 
 class MyVehiclesScreen extends StatefulWidget {
   final VehicleApi api;
-  const MyVehiclesScreen({super.key, required this.api});
+  final ApiClient apiClient;
+
+  const MyVehiclesScreen({super.key, required this.api, required this.apiClient});
 
   @override
   State<MyVehiclesScreen> createState() => _MyVehiclesScreenState();
@@ -40,6 +47,25 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     if (changed == true) await load();
   }
 
+  Future<void> openDetails(Map<String, dynamic> v) async {
+    final id = (v["id"] as num).toInt();
+    final docsApi = DocsApi(widget.apiClient.dio);
+    final recApi = RecordsApi(widget.apiClient.dio);
+    final remApi = RemindersApi(widget.apiClient.dio);
+
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => VehicleDetailsScreen(
+        vehicleId: id,
+        vehicleApi: widget.api,
+        docsApi: docsApi,
+        recordsApi: recApi,
+        remindersApi: remApi,
+      ),
+    ));
+
+    await load();
+  }
+
   Future<void> editVehicle(Map<String, dynamic> v) async {
     final canEdit = v["canEdit"] == true;
     if (!canEdit) return;
@@ -55,7 +81,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         ),
       ));
       if (changed == true) await load();
-    } catch (e) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nepavyko atidaryti redagavimo.")),
       );
@@ -70,7 +96,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     try {
       await widget.api.deleteVehicle(id);
       await load();
-    } catch (e) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nepavyko ištrinti.")),
       );
@@ -82,7 +108,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     try {
       await widget.api.useVehicle(id);
       await load();
-    } catch (e) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nepavyko nustatyti kaip naudojamos.")),
       );
@@ -109,34 +135,24 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         itemCount: vehicles.length,
         itemBuilder: (_, i) {
           final v = vehicles[i];
-
           final title = "${v["make"] ?? ""} ${v["model"] ?? ""} (${v["modelYear"] ?? ""})";
           final vin = (v["vin"] == null || v["vin"].toString().isEmpty) ? "-" : v["vin"].toString();
           final odo = v["odometerKm"]?.toString() ?? "-";
           final inGroup = v["groupId"] != null;
-
           final ownerEmail = v["ownerEmail"]?.toString() ?? "unknown";
           final canEdit = v["canEdit"] == true;
           final canDelete = v["canDelete"] == true;
-
           final activeByMe = v["activeByMe"] == true;
           final activeByEmail = v["activeByEmail"]?.toString();
           final usedByOther = activeByEmail != null && !activeByMe;
 
-          Widget trailing;
-
+          Widget useBtn;
           if (activeByMe) {
-            trailing = TextButton(
-              onPressed: unuse,
-              child: const Text("Nebenaudoti"),
-            );
+            useBtn = TextButton(onPressed: unuse, child: const Text("Nebenaudoti"));
           } else if (usedByOther) {
-            trailing = Text("Naudoja: $activeByEmail", style: const TextStyle(fontSize: 12));
+            useBtn = Text("Naudoja: $activeByEmail", style: const TextStyle(fontSize: 12));
           } else {
-            trailing = TextButton(
-              onPressed: () => useVehicle(v),
-              child: const Text("Naudoti"),
-            );
+            useBtn = TextButton(onPressed: () => useVehicle(v), child: const Text("Naudoti"));
           }
 
           return ListTile(
@@ -146,11 +162,14 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   "${inGroup ? " • Grupėje" : ""}"
                   "${canEdit ? "" : " • Owner: $ownerEmail"}",
             ),
-            onTap: canEdit ? () => editVehicle(v) : null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                trailing,
+                IconButton(
+                  icon: const Icon(Icons.description),
+                  onPressed: () => openDetails(v),
+                ),
+                useBtn,
                 if (canEdit || canDelete)
                   PopupMenuButton<String>(
                     onSelected: (x) {
@@ -164,6 +183,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   ),
               ],
             ),
+            onTap: () => openDetails(v),
           );
         },
       ),

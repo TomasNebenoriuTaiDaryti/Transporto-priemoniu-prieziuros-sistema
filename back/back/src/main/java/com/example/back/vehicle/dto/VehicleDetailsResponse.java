@@ -17,5 +17,6 @@ public record VehicleDetailsResponse(
         java.math.BigDecimal co2Gkm,
         String plantCountry,
         String manufacturer,
-        Long groupId
+        Long groupId,
+        boolean canManageReminders
 ) {}
