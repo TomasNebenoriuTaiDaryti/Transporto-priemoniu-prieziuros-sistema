@@ -21,6 +21,7 @@ class RecordsApi {
         String? currency,
         String? tireType,
         int? tireAgeYears,
+        double? liters,
       }) async {
     await _dio.post("/api/vehicles/$vehicleId/records", data: {
       "kind": kind,
@@ -32,6 +33,7 @@ class RecordsApi {
       "currency": currency ?? "EUR",
       "tireType": tireType,
       "tireAgeYears": tireAgeYears,
+      "liters": liters,
     });
   }
 
@@ -47,6 +49,7 @@ class RecordsApi {
         required String currency,
         String? tireType,
         int? tireAgeYears,
+        double? liters,
       }) async {
     await _dio.put("/api/vehicles/$vehicleId/records/$recordId", data: {
       "kind": kind,
@@ -58,6 +61,7 @@ class RecordsApi {
       "currency": currency,
       "tireType": tireType,
       "tireAgeYears": tireAgeYears,
+      "liters": liters,
     });
   }
 

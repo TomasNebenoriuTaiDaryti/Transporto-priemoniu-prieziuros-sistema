@@ -62,6 +62,7 @@ public class RecordService {
             case TIRES -> "Padangų keitimas";
             case BRAKES -> "Stabdžių aptarnavimas";
             case SERVICE -> "Apsilankymas servise";
+            case FUEL -> "Degalų pildymas";
             case OTHER -> (req.title() == null || req.title().isBlank()) ? "Kitas įrašas" : req.title();
         };
 
@@ -73,6 +74,7 @@ public class RecordService {
         var meta = om.createObjectNode();
         if (req.tireType() != null) meta.put("tireType", req.tireType());
         if (req.tireAgeYears() != null) meta.put("tireAgeYears", req.tireAgeYears());
+        if (req.liters() != null) meta.put("liters", req.liters());
         r.setMetaJson(meta.toString());
 
         ServiceRecord saved = records.save(r);
@@ -103,6 +105,7 @@ public class RecordService {
             case TIRES -> "Padangų keitimas";
             case BRAKES -> "Stabdžių aptarnavimas";
             case SERVICE -> "Apsilankymas servise";
+            case FUEL -> "Degalų pildymas";
             case OTHER -> (req.title() == null || req.title().isBlank()) ? "Kitas įrašas" : req.title();
         };
         r.setTitle(title);

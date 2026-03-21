@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/location/odometer_tracker.dart';
 import '../../vehicles_details/data/docs_api.dart';
 import '../../vehicles_details/data/records_api.dart';
 import '../../vehicles_details/data/reminders_api.dart';
@@ -27,6 +28,14 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     setState(() { loading = true; error = null; });
     try {
       vehicles = await widget.api.listAccessibleVehicles();
+      final active = vehicles.where((v) => v["activeByMe"] == true).toList();
+      if (active.isNotEmpty) {
+        final id = (active.first["id"] as num).toInt();
+        try {
+          await OdometerTracker.instance.start(vehicleId: id, api: widget.api);
+        } catch (_) {
+        }
+      }
     } catch (e) {
       error = "Nepavyko užkrauti mašinų";
     } finally {
@@ -107,6 +116,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final id = (v["id"] as num).toInt();
     try {
       await widget.api.useVehicle(id);
+      await OdometerTracker.instance.start(vehicleId: id, api: widget.api);
       await load();
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,6 +128,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   Future<void> unuse() async {
     try {
       await widget.api.unuseVehicle();
+      await OdometerTracker.instance.stop();
       await load();
     } catch (_) {}
   }

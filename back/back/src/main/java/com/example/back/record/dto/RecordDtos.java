@@ -8,7 +8,7 @@ import java.time.Instant;
 public final class RecordDtos {
     private RecordDtos() {}
 
-    public enum RecordKind { SERVICE, TIRES, BRAKES, OIL, OTHER }
+    public enum RecordKind { SERVICE, TIRES, BRAKES, OIL, OTHER, FUEL }
 
     public record RecordResponse(
             Long id,
@@ -34,7 +34,8 @@ public final class RecordDtos {
             @NotNull @PositiveOrZero BigDecimal totalCost,
             @NotBlank String currency,
             String tireType,
-            Integer tireAgeYears
+            Integer tireAgeYears,
+            BigDecimal liters
     ) {}
 
     public record UpdateRecordRequest(
@@ -46,6 +47,7 @@ public final class RecordDtos {
             @NotNull @PositiveOrZero BigDecimal totalCost,
             @NotBlank String currency,
             String tireType,
-            Integer tireAgeYears
+            Integer tireAgeYears,
+            BigDecimal liters
     ) {}
 }

@@ -5,6 +5,8 @@ import '../../garage/data/vehicle_api.dart';
 import '../../garage/presentation/my_vehicles_screen.dart';
 import '../../groups/data/groups_api.dart';
 import '../../groups/presentation/groups_screen.dart';
+import '../../stats/data/stats_api.dart';
+import '../../stats/presentation/stats_screen.dart';
 import '../data/auth_repo.dart';
 import 'login_screen.dart';
 
@@ -32,10 +34,12 @@ class AuthGate extends StatelessWidget {
 
         final vehicleApi = VehicleApi(apiClient.dio);
         final groupsApi = GroupsApi(apiClient.dio);
+        final statsApi = StatsApi(apiClient.dio);
 
         return _HomeTabs(
           vehicleApi: vehicleApi,
           groupsApi: groupsApi,
+          statsApi: statsApi,
           tokenStorage: tokenStorage,
           apiClient: apiClient,
         );
@@ -47,12 +51,14 @@ class AuthGate extends StatelessWidget {
 class _HomeTabs extends StatefulWidget {
   final VehicleApi vehicleApi;
   final GroupsApi groupsApi;
+  final StatsApi statsApi;
   final TokenStorage tokenStorage;
   final ApiClient apiClient;
 
   const _HomeTabs({
     required this.vehicleApi,
     required this.groupsApi,
+    required this.statsApi,
     required this.tokenStorage,
     required this.apiClient,
   });
@@ -75,11 +81,12 @@ class _HomeTabsState extends State<_HomeTabs> {
     final pages = [
       MyVehiclesScreen(api: widget.vehicleApi, apiClient: widget.apiClient),
       GroupsScreen(api: widget.groupsApi, vehicleApi: widget.vehicleApi),
+      StatsScreen(vehicleApi: widget.vehicleApi, statsApi: widget.statsApi),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(idx == 0 ? "TPPS • Mano mašinos" : "TPPS • Grupės"),
+        title: Text(idx == 0 ? "TPPS • Mano mašinos" : idx == 1 ? "TPPS • Grupės" : "TPPS • Statistika",),
         actions: [
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
@@ -91,6 +98,7 @@ class _HomeTabsState extends State<_HomeTabs> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.directions_car), label: "Garažas"),
           NavigationDestination(icon: Icon(Icons.groups), label: "Grupės"),
+          NavigationDestination(icon: Icon(Icons.bar_chart), label: "Statistika"),
         ],
       ),
     );

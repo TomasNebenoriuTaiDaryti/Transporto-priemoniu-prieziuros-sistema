@@ -70,6 +70,7 @@ public class VehicleDocument {
     public LocalDate getIssueDate() { return issueDate; }
     public LocalDate getExpiresAt() { return expiresAt; }
     public String getMetaJson() { return metaJson; }
+    public Instant getCreatedAt() { return createdAt; }
 
     public void setId(UUID id) { this.id = id; }
     public void setVehicleId(Long vehicleId) { this.vehicleId = vehicleId; }
@@ -88,4 +89,5 @@ public class VehicleDocument {
         this.storageProvider = "LOCAL";
         this.storagePath = "metadata-only";
     }
+
 }

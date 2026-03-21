@@ -24,6 +24,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
   final dateCtrl = TextEditingController();
   final odoCtrl = TextEditingController();
   final priceCtrl = TextEditingController();
+  final litersCtrl = TextEditingController();
   String tireType = "ALL_SEASON";
   final tireAgeCtrl = TextEditingController();
   bool loading = false;
@@ -43,6 +44,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
       final meta = jsonDecode(metaRaw) as Map<String, dynamic>;
       if (meta["tireType"] != null) tireType = meta["tireType"].toString();
       if (meta["tireAgeYears"] != null) tireAgeCtrl.text = meta["tireAgeYears"].toString();
+      if (meta["liters"] != null) litersCtrl.text = meta["liters"].toString();
     } catch (_) {}
   }
 
@@ -53,6 +55,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
     dateCtrl.dispose();
     odoCtrl.dispose();
     priceCtrl.dispose();
+    litersCtrl.dispose();
     tireAgeCtrl.dispose();
     super.dispose();
   }
@@ -82,6 +85,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
         currency: "EUR",
         tireType: kind == "TIRES" ? tireType : null,
         tireAgeYears: kind == "TIRES" ? int.tryParse(tireAgeCtrl.text.trim()) : null,
+        liters: kind == "FUEL" ? double.tryParse(litersCtrl.text.trim()) : null,
       );
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -105,6 +109,7 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
                 DropdownMenuItem(value: "TIRES", child: Text("Padangos")),
                 DropdownMenuItem(value: "BRAKES", child: Text("Stabdžiai")),
                 DropdownMenuItem(value: "SERVICE", child: Text("Apsilankymas servise")),
+                DropdownMenuItem(value: "FUEL", child: Text("Degalų pylimas")),
                 DropdownMenuItem(value: "OTHER", child: Text("Kita")),
               ],
               onChanged: (v) => setState(() => kind = v!),
@@ -122,9 +127,13 @@ class _EditRecordScreenState extends State<EditRecordScreen> {
               title: Text("Data: ${dateCtrl.text}"),
               trailing: TextButton(onPressed: pickDate, child: const Text("Keisti")),
             ),
+            if (kind != "TIRES" && kind != "FUEL")
+              TextField(controller: odoCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Rida (km)")),
 
-            TextField(controller: odoCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Rida (km)")),
             TextField(controller: priceCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Kaina (EUR)")),
+
+            if (kind == "FUEL")
+              TextField(controller: litersCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Kiek litrų")),
 
             if (kind == "TIRES") ...[
               const SizedBox(height: 12),

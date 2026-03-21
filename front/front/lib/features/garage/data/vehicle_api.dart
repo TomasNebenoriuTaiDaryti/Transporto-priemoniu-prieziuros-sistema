@@ -53,4 +53,10 @@ class VehicleApi {
   Future<void> unuseVehicle() async {
     await _dio.post("/api/vehicles/unuse");
   }
+
+  Future<void> appendOdometerKm(int vehicleId, int deltaKm) async {
+    await _dio.post("/api/vehicles/$vehicleId/odometer/append", data: {
+      "deltaKm": deltaKm,
+    });
+  }
 }

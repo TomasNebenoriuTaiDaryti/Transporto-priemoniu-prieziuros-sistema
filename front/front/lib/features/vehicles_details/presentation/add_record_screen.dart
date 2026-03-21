@@ -18,6 +18,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   final dateCtrl = TextEditingController();
   final odoCtrl = TextEditingController();
   final priceCtrl = TextEditingController(text: "0");
+  final litersCtrl = TextEditingController();
   String tireType = "ALL_SEASON";
   final tireAgeCtrl = TextEditingController();
   bool loading = false;
@@ -37,6 +38,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     odoCtrl.dispose();
     priceCtrl.dispose();
     tireAgeCtrl.dispose();
+    litersCtrl.dispose();
     super.dispose();
   }
 
@@ -66,6 +68,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         currency: "EUR",
         tireType: kind == "TIRES" ? tireType : null,
         tireAgeYears: kind == "TIRES" ? int.tryParse(tireAgeCtrl.text.trim()) : null,
+        liters: kind == "FUEL" ? double.tryParse(litersCtrl.text.trim()) : null,
       );
 
       if (!mounted) return;
@@ -90,6 +93,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 DropdownMenuItem(value: "TIRES", child: Text("Padangos")),
                 DropdownMenuItem(value: "BRAKES", child: Text("Stabdžiai")),
                 DropdownMenuItem(value: "SERVICE", child: Text("Apsilankymas servise")),
+                DropdownMenuItem(value: "FUEL", child: Text("Degalų pylimas")),
                 DropdownMenuItem(value: "OTHER", child: Text("Kita")),
               ],
               onChanged: (v) => setState(() => kind = v!),
@@ -107,7 +111,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               trailing: TextButton(onPressed: pickDate, child: const Text("Keisti")),
             ),
 
-            if (kind != "TIRES")
+            if (kind != "TIRES" && kind != "FUEL")
               TextField(
                 controller: odoCtrl,
                 keyboardType: TextInputType.number,
@@ -119,6 +123,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Kaina (EUR)"),
             ),
+
+            if (kind == "FUEL")
+              TextField(
+                controller: litersCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Kiek litrų"),
+              ),
 
             if (kind == "TIRES") ...[
               const SizedBox(height: 12),
