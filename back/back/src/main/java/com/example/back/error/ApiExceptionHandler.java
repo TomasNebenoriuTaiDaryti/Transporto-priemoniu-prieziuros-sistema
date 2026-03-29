@@ -1,4 +1,4 @@
-package com.example.back.common.error;
+package com.example.back.error;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.example.back.common.error;
+package com.example.back.error;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

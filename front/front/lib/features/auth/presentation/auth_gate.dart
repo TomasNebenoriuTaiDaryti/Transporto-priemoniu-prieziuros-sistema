@@ -7,6 +7,8 @@ import '../../groups/data/groups_api.dart';
 import '../../groups/presentation/groups_screen.dart';
 import '../../stats/data/stats_api.dart';
 import '../../stats/presentation/stats_screen.dart';
+import '../../ai_chat/data/ai_chat_api.dart';
+import '../../ai_chat/presentation/ai_chat_screen.dart';
 import '../data/auth_repo.dart';
 import 'login_screen.dart';
 
@@ -35,11 +37,13 @@ class AuthGate extends StatelessWidget {
         final vehicleApi = VehicleApi(apiClient.dio);
         final groupsApi = GroupsApi(apiClient.dio);
         final statsApi = StatsApi(apiClient.dio);
+        final aiChatApi = AiChatApi(apiClient.dio);
 
         return _HomeTabs(
           vehicleApi: vehicleApi,
           groupsApi: groupsApi,
           statsApi: statsApi,
+          aiChatApi: aiChatApi,
           tokenStorage: tokenStorage,
           apiClient: apiClient,
         );
@@ -52,6 +56,7 @@ class _HomeTabs extends StatefulWidget {
   final VehicleApi vehicleApi;
   final GroupsApi groupsApi;
   final StatsApi statsApi;
+  final AiChatApi aiChatApi;
   final TokenStorage tokenStorage;
   final ApiClient apiClient;
 
@@ -59,6 +64,7 @@ class _HomeTabs extends StatefulWidget {
     required this.vehicleApi,
     required this.groupsApi,
     required this.statsApi,
+    required this.aiChatApi,
     required this.tokenStorage,
     required this.apiClient,
   });
@@ -82,11 +88,12 @@ class _HomeTabsState extends State<_HomeTabs> {
       MyVehiclesScreen(api: widget.vehicleApi, apiClient: widget.apiClient),
       GroupsScreen(api: widget.groupsApi, vehicleApi: widget.vehicleApi),
       StatsScreen(vehicleApi: widget.vehicleApi, statsApi: widget.statsApi),
+      AiChatScreen(vehicleApi: widget.vehicleApi, aiChatApi: widget.aiChatApi),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(idx == 0 ? "TPPS • Mano mašinos" : idx == 1 ? "TPPS • Grupės" : "TPPS • Statistika",),
+        title: Text(idx == 0 ? "TPPS • Mano mašinos" : idx == 1 ? "TPPS • Grupės" : idx == 2 ? "TPPS • Statistika" : "TPPS • AI chat",),
         actions: [
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
@@ -99,6 +106,7 @@ class _HomeTabsState extends State<_HomeTabs> {
           NavigationDestination(icon: Icon(Icons.directions_car), label: "Garažas"),
           NavigationDestination(icon: Icon(Icons.groups), label: "Grupės"),
           NavigationDestination(icon: Icon(Icons.bar_chart), label: "Statistika"),
+          NavigationDestination(icon: Icon(Icons.smart_toy), label: "AI"),
         ],
       ),
     );
