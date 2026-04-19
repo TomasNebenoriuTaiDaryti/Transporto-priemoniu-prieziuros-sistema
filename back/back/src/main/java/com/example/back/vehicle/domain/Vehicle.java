@@ -74,7 +74,7 @@ public class Vehicle {
     @Column(name = "manufacturer", length = 200)
     private String manufacturer;
 
-    protected Vehicle() {}
+    public Vehicle() {}
 
     public Vehicle(Long ownerUserId) {
         this.ownerUserId = ownerUserId;
@@ -106,6 +106,7 @@ public class Vehicle {
     public String getPlantCountry() { return plantCountry; }
     public String getManufacturer() { return manufacturer; }
 
+    public void setId(Long vehicleId) { this.id = vehicleId; }
     public void setGroupId(Long groupId) { this.groupId = groupId; }
     public void setNickname(String nickname) { this.nickname = normalizeBlankToNull(nickname); }
     public void setVin(String vin) { this.vin = vin; }
@@ -164,4 +165,5 @@ public class Vehicle {
         this.archivedAt = Instant.now();
         this.groupId = null;
     }
+
 }

@@ -93,7 +93,7 @@ class _HomeTabsState extends State<_HomeTabs> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(idx == 0 ? "TPPS • Mano mašinos" : idx == 1 ? "TPPS • Grupės" : idx == 2 ? "TPPS • Statistika" : "TPPS • AI chat",),
+        title: Text(idx == 0 ? "TPPS • Mano mašinos" : idx == 1 ? "TPPS • Grupės" : idx == 2 ? "TPPS • Statistika" : "TPPS • Asistentas",),
         actions: [
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],

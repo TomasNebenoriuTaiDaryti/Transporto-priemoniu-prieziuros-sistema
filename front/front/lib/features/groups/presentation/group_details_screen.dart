@@ -209,10 +209,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             children: members.map((m) {
               final email = m["email"].toString();
               final role = m["role"].toString();
+              final roleLabel =
+              role == "OWNER" ? "Savininkas" :
+              role == "MEMBER" ? "Narys" :
+              role;
               final isOwnerRow = role == "OWNER";
               return ListTile(
                 title: Text(email),
-                subtitle: Text(role),
+                subtitle: Text(roleLabel),
                 trailing: isOwner && !isOwnerRow
                     ? IconButton(
                   icon: const Icon(Icons.person_remove),
