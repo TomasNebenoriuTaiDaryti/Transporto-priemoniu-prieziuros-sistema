@@ -38,8 +38,7 @@ public class ApiExceptionHandler {
         log.error("Unhandled server error", ex);
         Map<String, Object> body = new HashMap<>();
         body.put("error", "SERVER_ERROR");
-        body.put("message", ex.getMessage());
-        body.put("exception", ex.getClass().getSimpleName());
+        body.put("message", "Įvyko serverio klaida");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

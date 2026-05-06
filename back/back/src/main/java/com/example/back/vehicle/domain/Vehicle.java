@@ -12,14 +12,11 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id", nullable = false)
+    @Column(name = "group_id")
     private Long groupId;
 
     @Column(name = "owner_user_id", nullable = false)
     private Long ownerUserId;
-
-    @Column(length = 80)
-    private String nickname;
 
     @Column(length = 17)
     private String vin;
@@ -30,16 +27,10 @@ public class Vehicle {
     @Column(name = "model_year")
     private Integer modelYear;
 
-    private String trim;
-    private String engine;
-
     private String transmission;
 
     @Column(name = "fuel_type")
     private String fuelType;
-
-    @Column(name = "plate_number")
-    private String plateNumber;
 
     @Column(name = "odometer_km", nullable = false)
     private Long odometerKm = 0L;
@@ -84,19 +75,14 @@ public class Vehicle {
     public Long getId() { return id; }
     public Long getGroupId() { return groupId; }
     public Long getOwnerUserId() { return ownerUserId; }
-    public String getNickname() { return nickname; }
     public String getVin() { return vin; }
     public String getMake() { return make; }
     public String getModel() { return model; }
     public Integer getModelYear() { return modelYear; }
-    public String getTrim() { return trim; }
-    public String getEngine() { return engine; }
     public String getTransmission() { return transmission; }
     public String getFuelType() { return fuelType; }
-    public String getPlateNumber() { return plateNumber; }
     public Long getOdometerKm() { return odometerKm; }
     public Instant getCreatedAt() { return createdAt; }
-    public Instant getArchivedAt() { return archivedAt; }
     public Integer getEngineDisplacementCc() { return engineDisplacementCc; }
     public String getDrive() { return drive; }
     public String getBody() { return body; }
@@ -108,16 +94,12 @@ public class Vehicle {
 
     public void setId(Long vehicleId) { this.id = vehicleId; }
     public void setGroupId(Long groupId) { this.groupId = groupId; }
-    public void setNickname(String nickname) { this.nickname = normalizeBlankToNull(nickname); }
     public void setVin(String vin) { this.vin = vin; }
     public void setMake(String make) { this.make = normalizeBlankToNull(make); }
     public void setModel(String model) { this.model = normalizeBlankToNull(model); }
     public void setModelYear(Integer modelYear) { this.modelYear = modelYear; }
-    public void setTrim(String trim) { this.trim = normalizeBlankToNull(trim); }
-    public void setEngine(String engine) { this.engine = normalizeBlankToNull(engine); }
     public void setTransmission(String transmission) { this.transmission = normalizeBlankToNull(transmission); }
     public void setFuelType(String fuelType) { this.fuelType = normalizeBlankToNull(fuelType); }
-    public void setPlateNumber(String plateNumber) { this.plateNumber = normalizeBlankToNull(plateNumber); }
 
     public void setOdometerKm(Long odometerKm) {
         if (odometerKm == null) return;
@@ -159,11 +141,6 @@ public class Vehicle {
         if (s == null) return null;
         String x = s.trim();
         return x.isEmpty() ? null : x;
-    }
-
-    public void archive() {
-        this.archivedAt = Instant.now();
-        this.groupId = null;
     }
 
 }

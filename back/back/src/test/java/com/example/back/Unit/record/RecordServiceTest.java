@@ -4,7 +4,7 @@ import com.example.back.record.domain.ServiceRecord;
 import com.example.back.record.dto.RecordDtos;
 import com.example.back.record.repo.ServiceRecordRepo;
 import com.example.back.record.service.RecordService;
-import com.example.back.reminder.service.ReminderPlanner;
+import com.example.back.reminder.service.ReminderService;
 import com.example.back.vehicle.domain.Vehicle;
 import com.example.back.vehicle.service.VehicleAccessService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,9 +26,9 @@ class RecordServiceTest {
 
     private final ServiceRecordRepo records = mock(ServiceRecordRepo.class);
     private final VehicleAccessService access = mock(VehicleAccessService.class);
-    private final ReminderPlanner planner = mock(ReminderPlanner.class);
+    private final ReminderService reminders = mock(ReminderService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final RecordService service = new RecordService(records, access, planner, objectMapper);
+    private final RecordService service = new RecordService(records, access, reminders, objectMapper);
 
     @Test
     @DisplayName("Sarasas grazinamas kai vartotojas turi prieiga")
@@ -115,8 +115,8 @@ class RecordServiceTest {
         RecordDtos.RecordResponse result = service.create(20L, 1L, request);
 
         assertThat(result.title()).isEqualTo("Tepalų ir filtro keitimas");
-        verify(planner).upsertMileageReminder(1L, "RECORD_OIL_KM", "7", "Tepalų keitimas (rida)", 16000L);
-        verify(planner).upsertDateReminder(1L, "RECORD_OIL_DATE", "7", "Tepalų keitimas (laikas)", LocalDate.ofInstant(performedAt, ZoneId.of("Europe/Vilnius")).plusYears(1));
+        verify(reminders).upsertMileageReminder(1L, "RECORD_OIL_KM", "7", "Tepalų keitimas (rida)", 16000L);
+        verify(reminders).upsertDateReminder(1L, "RECORD_OIL_DATE", "7", "Tepalų keitimas (laikas)", LocalDate.ofInstant(performedAt, ZoneId.of("Europe/Vilnius")).plusYears(1));
     }
 
     @Test
@@ -132,7 +132,7 @@ class RecordServiceTest {
         RecordDtos.RecordResponse result = service.create(20L, 1L, request);
 
         assertThat(result.title()).isEqualTo("Stabdžių aptarnavimas");
-        verify(planner).upsertMileageReminder(1L, "RECORD_BRAKES_KM", "7", "Stabdžiai", 46000L);
+        verify(reminders).upsertMileageReminder(1L, "RECORD_BRAKES_KM", "7", "Stabdžiai", 46000L);
     }
 
     @Test
@@ -150,7 +150,7 @@ class RecordServiceTest {
         assertThat(result.title()).isEqualTo("Padangų keitimas");
         assertThat(result.metaJson()).contains("\"tireType\":\"WINTER\"");
         assertThat(result.metaJson()).contains("\"tireAgeYears\":2");
-        verify(planner).upsertDateReminder(eq(1L), eq("RECORD_TIRES_DATE"), eq("7"), eq("Padangos (amžius)"), any(LocalDate.class));
+        verify(reminders).upsertDateReminder(eq(1L), eq("RECORD_TIRES_DATE"), eq("7"), eq("Padangos (amžius)"), any(LocalDate.class));
     }
 
     @Test
@@ -167,7 +167,7 @@ class RecordServiceTest {
 
         assertThat(result.title()).isEqualTo("Degalų pildymas");
         assertThat(result.metaJson()).contains("\"liters\":25.5");
-        verifyNoInteractions(planner);
+        verifyNoInteractions(reminders);
     }
 
     @Test
@@ -325,10 +325,10 @@ class RecordServiceTest {
     }
 
     private void verifyReminderDeletes() {
-        verify(planner).deleteBySource(1L, "RECORD_OIL_KM", "7");
-        verify(planner).deleteBySource(1L, "RECORD_OIL_DATE", "7");
-        verify(planner).deleteBySource(1L, "RECORD_BRAKES_KM", "7");
-        verify(planner).deleteBySource(1L, "RECORD_TIRES_DATE", "7");
+        verify(reminders).deleteBySource(1L, "RECORD_OIL_KM", "7");
+        verify(reminders).deleteBySource(1L, "RECORD_OIL_DATE", "7");
+        verify(reminders).deleteBySource(1L, "RECORD_BRAKES_KM", "7");
+        verify(reminders).deleteBySource(1L, "RECORD_TIRES_DATE", "7");
     }
 
     private static Vehicle vehicle(Long id, Long ownerUserId, Long odometerKm) {
@@ -343,7 +343,6 @@ class RecordServiceTest {
         record.setVehicleId(vehicleId);
         record.setCreatedByUserId(createdByUserId);
         record.setKind(kind);
-        record.setType("MAINTENANCE");
         record.setTitle(title);
         record.setDescription("Description");
         record.setPerformedAt(performedAt);

@@ -31,21 +31,6 @@ public class VehicleDocument {
     @Column(length = 600)
     private String description;
 
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
-
-    @Column(name = "mime_type", nullable = false)
-    private String mimeType;
-
-    @Column(name = "file_size_bytes", nullable = false)
-    private Long fileSizeBytes;
-
-    @Column(name = "storage_provider", nullable = false)
-    private String storageProvider;
-
-    @Column(name = "storage_path", nullable = false)
-    private String storagePath;
-
     @Column(name = "issue_date")
     private LocalDate issueDate;
 
@@ -81,13 +66,5 @@ public class VehicleDocument {
     public void setIssueDate(LocalDate issueDate) { this.issueDate = issueDate; }
     public void setExpiresAt(LocalDate expiresAt) { this.expiresAt = expiresAt; }
     public void setMetaJson(String metaJson) { this.metaJson = metaJson; }
-
-    public void setStubFile() {
-        this.fileName = "metadata-only";
-        this.mimeType = "application/json";
-        this.fileSizeBytes = 0L;
-        this.storageProvider = "LOCAL";
-        this.storagePath = "metadata-only";
-    }
 
 }

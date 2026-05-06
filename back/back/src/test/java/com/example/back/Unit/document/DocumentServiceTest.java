@@ -4,7 +4,7 @@ import com.example.back.document.domain.VehicleDocument;
 import com.example.back.document.dto.DocumentDtos;
 import com.example.back.document.repo.VehicleDocumentRepo;
 import com.example.back.document.service.DocumentService;
-import com.example.back.reminder.service.ReminderPlanner;
+import com.example.back.reminder.service.ReminderService;
 import com.example.back.vehicle.domain.Vehicle;
 import com.example.back.vehicle.service.VehicleAccessService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,9 +23,9 @@ class DocumentServiceTest {
 
     private final VehicleDocumentRepo docs = mock(VehicleDocumentRepo.class);
     private final VehicleAccessService access = mock(VehicleAccessService.class);
-    private final ReminderPlanner planner = mock(ReminderPlanner.class);
+    private final ReminderService reminders = mock(ReminderService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final DocumentService service = new DocumentService(docs, access, planner, objectMapper);
+    private final DocumentService service = new DocumentService(docs, access, reminders, objectMapper);
 
     @Test
     @DisplayName("Sarasas grazinamas kai vartotojas turi prieiga")
@@ -77,7 +77,7 @@ class DocumentServiceTest {
         assertThat(result.endDate()).isEqualTo(LocalDate.of(2027, 1, 1));
         assertThat(result.metaJson()).contains("\"price\":100.0");
         assertThat(result.canEdit()).isTrue();
-        verify(planner).upsertDocumentReminder(eq(1L), eq("DOCUMENT"), anyString(), eq("Draudimas"), eq(LocalDate.of(2027, 1, 1)));
+        verify(reminders).upsertDocumentReminder(eq(1L), eq("DOCUMENT"), anyString(), eq("Draudimas"), eq(LocalDate.of(2027, 1, 1)));
     }
 
     @Test
@@ -96,7 +96,7 @@ class DocumentServiceTest {
         assertThat(result.type()).isEqualTo(DocumentDtos.DocumentType.INSPECTION);
         assertThat(result.title()).isEqualTo("Techninė apžiūra");
         assertThat(result.metaJson()).isEqualTo("{}");
-        verify(planner).upsertDocumentReminder(eq(1L), eq("DOCUMENT"), anyString(), eq("Techninė apžiūra"), eq(LocalDate.of(2027, 1, 1)));
+        verify(reminders).upsertDocumentReminder(eq(1L), eq("DOCUMENT"), anyString(), eq("Techninė apžiūra"), eq(LocalDate.of(2027, 1, 1)));
     }
 
     @Test
@@ -119,7 +119,7 @@ class DocumentServiceTest {
         assertThat(result.endDate()).isNull();
         assertThat(result.metaJson()).contains("\"amount\":50.0");
         assertThat(result.metaJson()).contains("\"reason\":\"Speed\"");
-        verifyNoInteractions(planner);
+        verifyNoInteractions(reminders);
     }
 
     @Test
@@ -140,7 +140,7 @@ class DocumentServiceTest {
         assertThat(result.description()).isEqualTo("Desc");
         assertThat(result.startDate()).isNull();
         assertThat(result.endDate()).isNull();
-        verifyNoInteractions(planner);
+        verifyNoInteractions(reminders);
     }
 
     @Test
@@ -177,7 +177,7 @@ class DocumentServiceTest {
         assertThat(result.startDate()).isEqualTo(LocalDate.of(2026, 2, 1));
         assertThat(result.endDate()).isEqualTo(LocalDate.of(2027, 2, 1));
         assertThat(result.metaJson()).isEqualTo("{\"price\":120}");
-        verify(planner).upsertDocumentReminder(1L, "DOCUMENT", docId.toString(), "New", LocalDate.of(2027, 2, 1));
+        verify(reminders).upsertDocumentReminder(1L, "DOCUMENT", docId.toString(), "New", LocalDate.of(2027, 2, 1));
     }
 
     @Test
@@ -196,8 +196,8 @@ class DocumentServiceTest {
         DocumentDtos.DocumentResponse result = service.update(10L, docId, request);
 
         assertThat(result.metaJson()).isEqualTo("{}");
-        verify(planner).deleteBySource(1L, "DOCUMENT", docId.toString());
-        verify(planner, never()).upsertDocumentReminder(anyLong(), anyString(), anyString(), anyString(), any());
+        verify(reminders).deleteBySource(1L, "DOCUMENT", docId.toString());
+        verify(reminders, never()).upsertDocumentReminder(anyLong(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -215,7 +215,7 @@ class DocumentServiceTest {
 
         service.update(10L, docId, request);
 
-        verify(planner).deleteBySource(1L, "DOCUMENT", docId.toString());
+        verify(reminders).deleteBySource(1L, "DOCUMENT", docId.toString());
     }
 
     @Test
@@ -234,7 +234,7 @@ class DocumentServiceTest {
         DocumentDtos.DocumentResponse result = service.update(20L, docId, request);
 
         assertThat(result.canEdit()).isTrue();
-        verifyNoInteractions(planner);
+        verifyNoInteractions(reminders);
     }
 
     @Test
@@ -289,7 +289,7 @@ class DocumentServiceTest {
 
         service.delete(10L, docId);
 
-        verify(planner).deleteBySource(1L, "DOCUMENT", docId.toString());
+        verify(reminders).deleteBySource(1L, "DOCUMENT", docId.toString());
         verify(docs).delete(document);
     }
 
@@ -307,7 +307,7 @@ class DocumentServiceTest {
 
         service.delete(20L, docId);
 
-        verifyNoInteractions(planner);
+        verifyNoInteractions(reminders);
         verify(docs).delete(document);
     }
 
@@ -366,7 +366,6 @@ class DocumentServiceTest {
         document.setIssueDate(issueDate);
         document.setExpiresAt(expiresAt);
         document.setMetaJson(metaJson);
-        document.setStubFile();
         return document;
     }
 }

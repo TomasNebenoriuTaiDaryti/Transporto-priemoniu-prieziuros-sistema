@@ -23,9 +23,6 @@ public class ServiceRecord {
     @Column(name="created_by_user_id")
     private Long createdByUserId;
 
-    @Column(nullable=false, length=20)
-    private String type;
-
     @Column(nullable=false, length=160)
     private String title;
 
@@ -37,12 +34,6 @@ public class ServiceRecord {
 
     @Column(name="odometer_km")
     private Long odometerKm;
-
-    @Column(name="labor_cost", nullable=false, precision = 12, scale = 2)
-    private BigDecimal laborCost = BigDecimal.ZERO;
-
-    @Column(name="parts_cost", nullable=false, precision = 12, scale = 2)
-    private BigDecimal partsCost = BigDecimal.ZERO;
 
     @Column(name="total_cost", nullable=false, precision = 12, scale = 2)
     private BigDecimal totalCost = BigDecimal.ZERO;
@@ -66,7 +57,6 @@ public class ServiceRecord {
     public Long getId() { return id; }
     public Long getVehicleId() { return vehicleId; }
     public Long getCreatedByUserId() { return createdByUserId; }
-    public String getType() { return type; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public Instant getPerformedAt() { return performedAt; }
@@ -78,7 +68,6 @@ public class ServiceRecord {
 
     public void setVehicleId(Long vehicleId) { this.vehicleId = vehicleId; }
     public void setCreatedByUserId(Long createdByUserId) { this.createdByUserId = createdByUserId; }
-    public void setType(String type) { this.type = type; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
     public void setPerformedAt(Instant performedAt) { this.performedAt = performedAt; }

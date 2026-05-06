@@ -2,7 +2,7 @@ package com.example.back.document.service;
 
 import com.example.back.document.domain.VehicleDocument;
 import com.example.back.document.dto.DocumentDtos;
-import com.example.back.reminder.service.ReminderPlanner;
+import com.example.back.reminder.service.ReminderService;
 import com.example.back.document.repo.VehicleDocumentRepo;
 import com.example.back.vehicle.service.VehicleAccessService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,13 +19,13 @@ public class DocumentService {
 
     private final VehicleDocumentRepo docs;
     private final VehicleAccessService access;
-    private final ReminderPlanner planner;
+    private final ReminderService reminders;
     private final ObjectMapper om;
 
-    public DocumentService(VehicleDocumentRepo docs, VehicleAccessService access, ReminderPlanner planner, ObjectMapper om) {
+    public DocumentService(VehicleDocumentRepo docs, VehicleAccessService access, ReminderService reminders, ObjectMapper om) {
         this.docs = docs;
         this.access = access;
-        this.planner = planner;
+        this.reminders = reminders;
         this.om = om;
     }
 
@@ -84,12 +84,12 @@ public class DocumentService {
             String sourceId = d.getId().toString();
 
             if ("OTHER".equals(d.getType())) {
-                planner.deleteBySource(v.getId(), sourceType, sourceId);
+                reminders.deleteBySource(v.getId(), sourceType, sourceId);
             } else {
                 if (d.getExpiresAt() != null) {
-                    planner.upsertDocumentReminder(v.getId(), sourceType, sourceId, d.getTitle(), d.getExpiresAt());
+                    reminders.upsertDocumentReminder(v.getId(), sourceType, sourceId, d.getTitle(), d.getExpiresAt());
                 } else {
-                    planner.deleteBySource(v.getId(), sourceType, sourceId);
+                    reminders.deleteBySource(v.getId(), sourceType, sourceId);
                 }
             }
         }
@@ -107,7 +107,7 @@ public class DocumentService {
         if (!canEdit) throw new IllegalArgumentException("Negali trinti");
         
         if (access.isVehicleOwner(userId, v)) {
-            planner.deleteBySource(v.getId(), "DOCUMENT", d.getId().toString());
+            reminders.deleteBySource(v.getId(), "DOCUMENT", d.getId().toString());
         }
 
         docs.delete(d);
@@ -136,12 +136,11 @@ public class DocumentService {
         d.setIssueDate(start);
         d.setExpiresAt(end);
         d.setMetaJson(metaJson == null ? "{}" : metaJson);
-        d.setStubFile();
 
         VehicleDocument saved = docs.save(d);
 
         if (access.isVehicleOwner(userId, v) && type != DocumentDtos.DocumentType.OTHER && end != null) {
-            planner.upsertDocumentReminder(vehicleId, "DOCUMENT", saved.getId().toString(), saved.getTitle(), end);
+            reminders.upsertDocumentReminder(vehicleId, "DOCUMENT", saved.getId().toString(), saved.getTitle(), end);
         }
 
         return toResponse(userId, v.getOwnerUserId(), saved);

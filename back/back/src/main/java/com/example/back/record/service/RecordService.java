@@ -3,7 +3,7 @@ package com.example.back.record.service;
 import com.example.back.record.domain.ServiceRecord;
 import com.example.back.record.dto.RecordDtos;
 import com.example.back.record.repo.ServiceRecordRepo;
-import com.example.back.reminder.service.ReminderPlanner;
+import com.example.back.reminder.service.ReminderService;
 import com.example.back.vehicle.service.VehicleAccessService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,13 +20,13 @@ public class RecordService {
 
     private final ServiceRecordRepo records;
     private final VehicleAccessService access;
-    private final ReminderPlanner planner;
+    private final ReminderService reminders;
     private final ObjectMapper om;
 
-    public RecordService(ServiceRecordRepo records, VehicleAccessService access, ReminderPlanner planner, ObjectMapper om) {
+    public RecordService(ServiceRecordRepo records, VehicleAccessService access, ReminderService reminders, ObjectMapper om) {
         this.records = records;
         this.access = access;
-        this.planner = planner;
+        this.reminders = reminders;
         this.om = om;
     }
 
@@ -55,7 +55,6 @@ public class RecordService {
         r.setOdometerKm(odo);
 
         r.setKind(req.kind().name());
-        r.setType("MAINTENANCE");
 
         String title = switch (req.kind()) {
             case OIL -> "Tepalų ir filtro keitimas";
@@ -115,10 +114,10 @@ public class RecordService {
         if (req.tireAgeYears() != null) meta.put("tireAgeYears", req.tireAgeYears());
         r.setMetaJson(meta.toString());
 
-        planner.deleteBySource(v.getId(), "RECORD_OIL_KM", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_OIL_DATE", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_BRAKES_KM", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_TIRES_DATE", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_OIL_KM", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_OIL_DATE", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_BRAKES_KM", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_TIRES_DATE", r.getId().toString());
 
         applyRecordReminders(v.getId(), r.getId(), req.kind(), req.odometerKm(), req.performedAt(), req.tireAgeYears());
 
@@ -134,10 +133,10 @@ public class RecordService {
         boolean canEdit = access.isVehicleOwner(userId, v) || (r.getCreatedByUserId() != null && r.getCreatedByUserId().equals(userId));
         if (!canEdit) throw new IllegalArgumentException("Negali trinti");
 
-        planner.deleteBySource(v.getId(), "RECORD_OIL_KM", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_OIL_DATE", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_BRAKES_KM", r.getId().toString());
-        planner.deleteBySource(v.getId(), "RECORD_TIRES_DATE", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_OIL_KM", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_OIL_DATE", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_BRAKES_KM", r.getId().toString());
+        reminders.deleteBySource(v.getId(), "RECORD_TIRES_DATE", r.getId().toString());
 
         records.delete(r);
     }
@@ -145,21 +144,21 @@ public class RecordService {
     private void applyRecordReminders(Long vehicleId, Long recordId, RecordDtos.RecordKind kind, Long odo, Instant performedAt, Integer tireAgeYears) {
         if (kind == RecordDtos.RecordKind.OIL) {
             if (odo != null) {
-                planner.upsertMileageReminder(vehicleId, "RECORD_OIL_KM", recordId.toString(), "Tepalų keitimas (rida)", odo + 10000);
+                reminders.upsertMileageReminder(vehicleId, "RECORD_OIL_KM", recordId.toString(), "Tepalų keitimas (rida)", odo + 10000);
             }
             LocalDate dueDate = LocalDate.ofInstant(performedAt, ZoneId.of("Europe/Vilnius")).plusYears(1);
-            planner.upsertDateReminder(vehicleId, "RECORD_OIL_DATE", recordId.toString(), "Tepalų keitimas (laikas)", dueDate);
+            reminders.upsertDateReminder(vehicleId, "RECORD_OIL_DATE", recordId.toString(), "Tepalų keitimas (laikas)", dueDate);
         }
 
         if (kind == RecordDtos.RecordKind.BRAKES && odo != null) {
-            planner.upsertMileageReminder(vehicleId, "RECORD_BRAKES_KM", recordId.toString(), "Stabdžiai", odo + 40000);
+            reminders.upsertMileageReminder(vehicleId, "RECORD_BRAKES_KM", recordId.toString(), "Stabdžiai", odo + 40000);
         }
 
         if (kind == RecordDtos.RecordKind.TIRES) {
             int age = (tireAgeYears == null) ? 0 : Math.max(0, tireAgeYears);
             int left = Math.max(0, 6 - age);
             LocalDate dueDate = LocalDate.now(ZoneId.of("Europe/Vilnius")).plusYears(left);
-            planner.upsertDateReminder(vehicleId, "RECORD_TIRES_DATE", recordId.toString(), "Padangos (amžius)", dueDate);
+            reminders.upsertDateReminder(vehicleId, "RECORD_TIRES_DATE", recordId.toString(), "Padangos (amžius)", dueDate);
         }
     }
 

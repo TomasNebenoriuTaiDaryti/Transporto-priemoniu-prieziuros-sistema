@@ -25,26 +25,18 @@ class VehicleDomainTest {
     void stringFieldsNormalizeBlankToNull() {
         Vehicle vehicle = new Vehicle(10L);
 
-        vehicle.setNickname("  My car  ");
         vehicle.setMake("   ");
         vehicle.setModel("");
-        vehicle.setTrim(null);
-        vehicle.setEngine(" 1.9 TDI ");
         vehicle.setFuelType(" DIESEL ");
-        vehicle.setPlateNumber(" ABC123 ");
         vehicle.setTransmission(" Manual ");
         vehicle.setDrive(" FWD ");
         vehicle.setBody(" Hatchback ");
         vehicle.setPlantCountry(" Germany ");
         vehicle.setManufacturer(" VW ");
 
-        assertThat(vehicle.getNickname()).isEqualTo("My car");
         assertThat(vehicle.getMake()).isNull();
         assertThat(vehicle.getModel()).isNull();
-        assertThat(vehicle.getTrim()).isNull();
-        assertThat(vehicle.getEngine()).isEqualTo("1.9 TDI");
         assertThat(vehicle.getFuelType()).isEqualTo("DIESEL");
-        assertThat(vehicle.getPlateNumber()).isEqualTo("ABC123");
         assertThat(vehicle.getTransmission()).isEqualTo("Manual");
         assertThat(vehicle.getDrive()).isEqualTo("FWD");
         assertThat(vehicle.getBody()).isEqualTo("Hatchback");
@@ -133,18 +125,6 @@ class VehicleDomainTest {
 
         assertThatThrownBy(() -> vehicle.setSeats(0)).isInstanceOf(IllegalArgumentException.class).hasMessage("Seats neteisingas");
         assertThatThrownBy(() -> vehicle.setSeats(21)).isInstanceOf(IllegalArgumentException.class).hasMessage("Seats neteisingas");
-    }
-
-    @Test
-    @DisplayName("Archyvavimas nustato archyvavimo datą ir išvalo grupę")
-    void archiveSetsArchivedAtAndClearsGroup() {
-        Vehicle vehicle = new Vehicle(10L);
-        vehicle.setGroupId(5L);
-
-        vehicle.archive();
-
-        assertThat(vehicle.getArchivedAt()).isNotNull();
-        assertThat(vehicle.getGroupId()).isNull();
     }
 
     @Test

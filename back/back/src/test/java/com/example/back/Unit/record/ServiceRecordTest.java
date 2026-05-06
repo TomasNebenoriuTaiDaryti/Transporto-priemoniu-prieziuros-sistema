@@ -29,7 +29,6 @@ class ServiceRecordTest {
 
         record.setVehicleId(1L);
         record.setCreatedByUserId(10L);
-        record.setType("MAINTENANCE");
         record.setTitle("Title");
         record.setDescription("Description");
         record.setPerformedAt(performedAt);
@@ -41,7 +40,6 @@ class ServiceRecordTest {
 
         assertThat(record.getVehicleId()).isEqualTo(1L);
         assertThat(record.getCreatedByUserId()).isEqualTo(10L);
-        assertThat(record.getType()).isEqualTo("MAINTENANCE");
         assertThat(record.getTitle()).isEqualTo("Title");
         assertThat(record.getDescription()).isEqualTo("Description");
         assertThat(record.getPerformedAt()).isEqualTo(performedAt);

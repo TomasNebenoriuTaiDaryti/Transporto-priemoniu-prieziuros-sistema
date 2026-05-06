@@ -107,7 +107,7 @@ public class VehicleService {
         v.setBody(req.body());
         v.setDoors(req.doors());
         v.setSeats(req.seats());
-        v.setCo2Gkm(BigDecimal.valueOf(req.co2Gkm()));
+        v.setCo2Gkm(req.co2Gkm() == null ? null : BigDecimal.valueOf(req.co2Gkm()));
         v.setPlantCountry(req.plantCountry());
         v.setManufacturer(req.manufacturer());
 

@@ -48,14 +48,4 @@ class VehicleDocumentTest {
         assertThat(document.getExpiresAt()).isEqualTo(expiresAt);
         assertThat(document.getMetaJson()).isEqualTo("{\"price\":100}");
     }
-
-    @Test
-    @DisplayName("Stub failas nustato techninius failo laukus")
-    void setStubFileSetsTechnicalFileFields() {
-        VehicleDocument document = new VehicleDocument();
-
-        document.setStubFile();
-
-        assertThat(document).isNotNull();
-    }
 }
